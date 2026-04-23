@@ -16,7 +16,7 @@ export default function SignUpPage() {
           </div>
         }
       >
-        <div className="flex items-center justify-center p-8 bg-background order-2 lg:order-1">
+        <div className="flex items-center justify-center p-8 bg-white dark:bg-background order-2 lg:order-1">
           <div className="mx-auto flex w-full flex-col items-center justify-center space-y-6 sm:w-[450px]">
             <div className="flex flex-col space-y-2 text-center lg:hidden">
               <Image
@@ -26,10 +26,10 @@ export default function SignUpPage() {
                 height={48}
                 className="mx-auto mb-2"
               />
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">
                 Get Started with Kognit
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-neutral-600 dark:text-muted-foreground">
                 Create your account to unlock intelligent task management
               </p>
             </div>
@@ -41,9 +41,10 @@ export default function SignUpPage() {
                     "bg-primary hover:bg-primary/90 text-sm normal-case shadow-sm",
                   card: "shadow-none border-none bg-transparent p-0",
                   socialButtonsBlockButton:
-                    "border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    "border-input bg-white dark:bg-background hover:bg-accent hover:text-accent-foreground",
                   dividerLine: "bg-border",
-                  dividerText: "text-muted-foreground text-xs uppercase",
+                  dividerText:
+                    "text-neutral-600 dark:text-muted-foreground text-xs uppercase",
                   footer: "hidden",
                 },
                 options: {
@@ -53,7 +54,7 @@ export default function SignUpPage() {
               }}
             />
 
-            <p className="text-center text-xs text-muted-foreground">
+            <p className="text-center text-xs text-neutral-600 dark:text-muted-foreground">
               By continuing, you agree to our{" "}
               <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
@@ -69,7 +70,7 @@ export default function SignUpPage() {
       </Suspense>
 
       {/* Branding Side (Features) */}
-      <div className="relative hidden flex-col bg-zinc-950 p-10 text-white lg:flex order-1 lg:order-2">
+      <div className="relative hidden flex-col bg-neutral-100 dark:bg-neutral-950 p-10 lg:flex order-1 lg:order-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
 
         {/* Logo Section */}
@@ -81,7 +82,7 @@ export default function SignUpPage() {
             height={32}
             priority
           />
-          <span className="text-xl font-bold tracking-tight font-heading">
+          <span className="text-xl font-bold tracking-tight font-heading text-neutral-900 dark:text-white">
             Kognit
           </span>
         </div>
@@ -89,48 +90,54 @@ export default function SignUpPage() {
         {/* Feature Cards */}
         <div className="relative z-20 mt-auto space-y-8">
           <div className="space-y-6">
-            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-white/5">
+            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-neutral-200 dark:hover:bg-white/5">
               <div className="mt-1 rounded-lg bg-primary/10 p-2.5">
                 <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-semibold">Secure Task Management</h4>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <h4 className="font-semibold text-neutral-900 dark:text-white">
+                  Secure Task Management
+                </h4>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Your tasks are safely stored and intelligently organized,
                   ensuring privacy and reliability at every step.
                 </p>
               </div>
             </div>
 
-            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-white/5">
+            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-neutral-200 dark:hover:bg-white/5">
               <div className="mt-1 rounded-lg bg-primary/10 p-2.5">
                 <Video className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-semibold">Context-Aware Productivity</h4>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <h4 className="font-semibold text-neutral-900 dark:text-white">
+                  Context-Aware Productivity
+                </h4>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Kognit remembers the context of your tasks, helping you stay
                   focused and reducing repetitive work.
                 </p>
               </div>
             </div>
 
-            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-white/5">
+            <div className="group flex items-start gap-4 p-4 rounded-xl transition-colors hover:bg-neutral-200 dark:hover:bg-white/5">
               <div className="mt-1 rounded-lg bg-primary/10 p-2.5">
                 <BrainCircuit className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-semibold">AI-Powered Memory</h4>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <h4 className="font-semibold text-neutral-900 dark:text-white">
+                  AI-Powered Memory
+                </h4>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Powered by RAG and Gemini AI, Kognit doesn&apos;t just store
-                  tasks— it understands them to boost your productivity.
+                  tasks—it understands them to boost your productivity.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/10">
-            <p className="text-xs text-zinc-500 uppercase tracking-widest font-medium">
+          <div className="pt-8 border-t border-neutral-300 dark:border-white/10">
+            <p className="text-xs text-neutral-700 dark:text-neutral-500 uppercase tracking-widest font-medium">
               Productivity with intelligence.
             </p>
           </div>
