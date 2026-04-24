@@ -7,8 +7,12 @@ import {
   uuid,
   vector,
   index,
+  pgEnum,
+  real,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+export const priorityEnum = pgEnum("priority", ["low", "medium", "high"]);
 
 // 1. Users Table (Synced via Clerk Webhooks)
 export const users = pgTable("users", {
@@ -29,8 +33,21 @@ export const tasks = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+
+    // Core Content
     content: text("content").notNull(),
+    description: text("description"), // For the AI to have more context
+
+    // Status & Organization
     isCompleted: boolean("is_completed").default(false).notNull(),
+    priority: priorityEnum("priority").default("medium").notNull(),
+
+    // Drag and Drop ordering
+    // Using 'real' allows for easy reordering logic (fractional indexing)
+    position: real("position").default(0).notNull(),
+
+    // Time Management
+    dueDate: timestamp("due_date"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -80,6 +97,7 @@ export type NewUserType = InferInsertModel<typeof users>;
 // Tasks Types
 export type TaskType = InferSelectModel<typeof tasks>;
 export type NewTaskType = InferInsertModel<typeof tasks>;
+export type PriorityType = "low" | "medium" | "high";
 
 // Task Embeddings Types
 export type TaskEmbeddingType = InferSelectModel<typeof taskEmbeddings>;
