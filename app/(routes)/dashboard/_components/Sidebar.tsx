@@ -2,21 +2,22 @@
 
 import {
   LayoutGrid,
-  PieChart,
   MessageCircle,
   Settings,
   LogOut,
+  ListTodo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, UserButton } from "@clerk/nextjs";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const navItems = [
-  { id: "Home", icon: LayoutGrid },
-  { id: "Stats", icon: PieChart },
-  { id: "Chat", icon: MessageCircle },
-  { id: "Settings", icon: Settings },
+  { id: "Home", icon: LayoutGrid, path: "/dashboard" },
+  { id: "Tasks", icon: ListTodo, path: "/tasks" },
+  { id: "Chat", icon: MessageCircle, path: "/chat" },
+  { id: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export function Sidebar({
@@ -47,7 +48,8 @@ export function Sidebar({
 
         <nav className="flex flex-col gap-4 w-full px-4">
           {navItems.map((item) => (
-            <button
+            <Link
+              href={item.path}
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={cn(
@@ -58,11 +60,22 @@ export function Sidebar({
               )}
             >
               <item.icon className="w-5 h-5 stroke-[2.5px]" />
-            </button>
+            </Link>
           ))}
         </nav>
 
         <div className="mt-auto flex flex-col gap-4">
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonAvatarBox: "w-10 h-10", // Custom width and height
+                userButtonTrigger: "w-10 h-10",
+              },
+            }}
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
           <button
             onClick={handleSignOut}
             className="clay-button h-10 w-10 flex items-center justify-center text-destructive cursor-pointer"

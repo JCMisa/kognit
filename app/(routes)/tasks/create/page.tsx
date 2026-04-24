@@ -1,8 +1,16 @@
 import Link from "next/link";
 import TaskForm from "./_components/TaskForm";
 import { ArrowLeftIcon } from "lucide-react";
+import { redirect } from "next/navigation";
+import { getCurrentUserAction } from "@/lib/actions/user";
 
-const CreateTasksPage = () => {
+const CreateTasksPage = async () => {
+  const user = await getCurrentUserAction();
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
   return (
     <div className="min-h-screen p-4 md:p-8 transition-colors duration-300">
       {/* Ambient Background Blobs */}

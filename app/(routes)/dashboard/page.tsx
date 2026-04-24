@@ -48,12 +48,15 @@ export default function DashboardPage() {
                 className="clay-input pl-12 pr-4 py-3 w-full md:w-64 text-foreground font-semibold outline-none"
               />
             </div>
+
             {/* theme toggler */}
             <ThemeToggler />
+
             {/* notification button */}
             <button className="clay-button p-3 h-12 w-12 flex items-center justify-center cursor-pointer">
               <Bell className="w-5 h-5" />
             </button>
+
             {/* add new task button */}
             <Link
               href={"/tasks/create"}
