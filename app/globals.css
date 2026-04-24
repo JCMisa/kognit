@@ -188,4 +188,37 @@
   .chart-clay-filter {
     filter: url(#clay-filter);
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.clay-inset {
+  background: var(--clay-bg);
+  border-radius: 16px;
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow),
+    inset -4px -4px 8px var(--clay-highlight);
+}
+
+.clay-pill {
+  background: var(--clay-bg);
+  border-radius: 50px;
+  box-shadow:
+    4px 4px 8px var(--clay-shadow),
+    -4px -4px 8px var(--clay-highlight);
+  transition: all 0.2s ease;
+}
+
+.clay-pill.active,
+.clay-pill:active {
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow),
+    inset -4px -4px 8px var(--clay-highlight);
 }

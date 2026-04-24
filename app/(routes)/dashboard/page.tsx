@@ -6,6 +6,7 @@ import { ClayCard } from "@/components/ui-lora/Clay";
 import { Sidebar } from "./_components/Sidebar";
 import { useUserStore } from "@/store/userStore";
 import ThemeToggler from "@/components/custom/ThemeToggler";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -54,10 +55,13 @@ export default function DashboardPage() {
               <Bell className="w-5 h-5" />
             </button>
             {/* add new task button */}
-            <button className="bg-primary cursor-pointer text-primary-foreground px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:brightness-110 transition-all shadow-lg">
+            <Link
+              href={"/tasks/create"}
+              className="!bg-primary cursor-pointer !text-primary-foreground px-6 py-3 !rounded-2xl font-bold flex items-center gap-2 hover:brightness-110 transition-all shadow-lg clay-button"
+            >
               <Plus className="w-5 h-5 stroke-[3px]" />
               <span className="hidden sm:inline">New Task</span>
-            </button>
+            </Link>
           </div>
         </header>
 

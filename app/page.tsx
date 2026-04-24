@@ -18,6 +18,7 @@ export default function Home() {
         />
       </section>
 
+      {/* // todo: next section */}
       <section className="min-h-[1000px]"></section>
 
       <div className="fixed bottom-3 right-3">
