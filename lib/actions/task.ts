@@ -92,7 +92,7 @@ export const createTaskAction = async (formData: TaskFormValues) => {
     // We do this AFTER saving the task so we have the real task ID
     try {
       // const textToEmbed = `Task: ${newTask.content}. Context: ${newTask.description || "None"}. Attached Image: ${!!newTask.imageUrl}`;
-      const textToEmbed = `Task: ${newTask.content}. Context: ${newTask.description || "None"}`;
+      const textToEmbed = `Task: ${newTask.content}. Context: ${newTask.description || "None"}. Is completed: ${newTask.isCompleted}. Priority: ${newTask.priority}. Due data: ${newTask.dueDate ? newTask.dueDate.toISOString() : "None"}. Created at: ${newTask.createdAt.toISOString()}`;
 
       const embeddingsResponse = await ai.models.embedContent({
         model: "gemini-embedding-2",
@@ -185,7 +185,7 @@ export const reorderTasksAction = async (
       reorderedTasks.map((task) =>
         db
           .update(tasks)
-          .set({ position: task.position })
+          .set({ position: task.position, updatedAt: new Date() })
           .where(eq(tasks.id, task.id)),
       ),
     );
@@ -202,6 +202,7 @@ export const reorderTasksAction = async (
 export const updateTaskStatusAction = async (
   taskId: string,
   isCompleted: boolean,
+  taskContent: string,
 ) => {
   const userId = await getSessionUserIdAction();
 
@@ -213,7 +214,9 @@ export const updateTaskStatusAction = async (
     const data = await db
       .update(tasks)
       .set({
+        content: `${`${taskContent} ${isCompleted && "(Completed)"}`}`,
         isCompleted: isCompleted,
+        updatedAt: new Date(),
       })
       .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
       .returning();

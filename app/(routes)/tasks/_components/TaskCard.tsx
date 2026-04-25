@@ -50,7 +50,11 @@ export function TaskCard({ task }: { task: TaskType }) {
     e.stopPropagation();
     e.preventDefault();
 
-    const res = await updateTaskStatusAction(task.id, !isCompleted);
+    const res = await updateTaskStatusAction(
+      task.id,
+      !isCompleted,
+      task.content,
+    );
 
     if (!res.success) {
       toast.error("Failed to update task status. Please try again.");
