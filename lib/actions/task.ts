@@ -3,7 +3,7 @@
 import { db } from "@/config/db";
 import { getSessionUserIdAction } from "./auth";
 import { taskEmbeddings, tasks } from "@/config/schema";
-import { TaskFormValues } from "@/app/(routes)/tasks/create/_components/TaskForm";
+import { TaskFormValues } from "@/app/(routes)/tasks/_components/TaskForm";
 import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { GoogleGenAI } from "@google/genai";
@@ -34,14 +34,8 @@ export const getAllUserTasksAction = async (userId: string) => {
   }
 };
 
-export const getUserTaskByIdAction = async (taskId: string) => {
+export const getUserTaskByIdAction = async (taskId: string, userId: string) => {
   "use cache";
-
-  const userId = await getSessionUserIdAction();
-
-  if (!userId) {
-    return { success: false, error: "Unauthenticated" };
-  }
 
   try {
     cacheLife("hours");
@@ -231,5 +225,63 @@ export const updateTaskStatusAction = async (
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, error: "Database connection failed." };
+  }
+};
+
+export const updateTaskAction = async (
+  taskId: string,
+  formData: TaskFormValues,
+) => {
+  const userId = await getSessionUserIdAction();
+  if (!userId) return { success: false, error: "Unauthenticated" };
+
+  try {
+    // 1. Update the Task in Neon
+    const [updatedTask] = await db
+      .update(tasks)
+      .set({
+        content: formData.content,
+        description: formData.description,
+        imageUrl: formData.imageUrl,
+        priority: formData.priority,
+        dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+      .returning();
+
+    if (!updatedTask) return { success: false, error: "Task not found." };
+
+    // 2. Update the Embedding (Sync RAG Memory)
+    try {
+      const textToEmbed = `Task: ${updatedTask.content}. Context: ${updatedTask.description || "None"}. Is completed: ${updatedTask.isCompleted}. Priority: ${updatedTask.priority}. Due date: ${updatedTask.dueDate ? updatedTask.dueDate.toISOString() : "None"}`;
+
+      const embeddingsResponse = await ai.models.embedContent({
+        model: "gemini-embedding-2",
+        contents: textToEmbed,
+        config: { outputDimensionality: 768 },
+      });
+
+      const embeddingVector = embeddingsResponse.embeddings?.[0]?.values;
+
+      if (embeddingVector) {
+        await db
+          .update(taskEmbeddings)
+          .set({
+            content: textToEmbed,
+            embedding: embeddingVector,
+          })
+          .where(eq(taskEmbeddings.taskId, updatedTask.id));
+      }
+    } catch (aiError) {
+      console.error("AI Sync failed during update:", aiError);
+    }
+
+    revalidatePath("/tasks");
+    revalidateTag(`user-task-${taskId}`, "max");
+    return { success: true, data: updatedTask };
+  } catch (error) {
+    console.log("Database Error:", error);
+    return { success: false, error: "Update failed." };
   }
 };

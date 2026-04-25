@@ -1,9 +1,9 @@
 import Link from "next/link";
-import TaskForm from "./_components/TaskForm";
+import TaskForm from "../_components/TaskForm";
 import { ArrowLeftIcon } from "lucide-react";
 import { Suspense } from "react";
 
-const CreateTasksPage = async () => {
+const CreateTasksPage = () => {
   return (
     <div className="min-h-screen p-4 md:p-8 transition-colors duration-300">
       {/* Ambient Background Blobs */}
@@ -35,7 +35,7 @@ const CreateTasksPage = async () => {
         </div>
 
         {/* Task Form */}
-        <Suspense fallback={<p>Loading form...</p>}>
+        <Suspense fallback={<p>Loading task create form...</p>}>
           <TaskForm />
         </Suspense>
       </div>

@@ -12,6 +12,9 @@ import {
   CheckCircle2,
   Circle,
   GripVertical,
+  EyeIcon,
+  PencilIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -19,6 +22,16 @@ import Image from "next/image";
 import { updateTaskStatusAction } from "@/lib/actions/task";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 export function TaskCard({ task }: { task: TaskType }) {
   // dnd-kit logic
@@ -91,9 +104,42 @@ export function TaskCard({ task }: { task: TaskType }) {
                 {task.priority}
               </span>
             </div>
-            <button className="p-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
-              <MoreVertical className="w-4 h-4" />
-            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    asChild
+                    className="flex items-center gap-2 text-xs tracking-wider "
+                  >
+                    <Link href={`/tasks/${task.id}`}>
+                      <EyeIcon className="w-3 h-3" />
+                      View
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    asChild
+                    className="flex items-center gap-2 text-xs tracking-wider"
+                  >
+                    <Link href={`/tasks/${task.id}/edit`}>
+                      <PencilIcon className="w-3 h-3" />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center gap-2 text-xs tracking-wider">
+                    <Trash2Icon className="w-3 h-3" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Task Image Preview */}

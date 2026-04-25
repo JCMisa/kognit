@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useClerk, UserButton } from "@clerk/nextjs";
 import { toast } from "sonner";
 import Link from "next/link";
+import { usePathname } from "next/navigation"; // Import this
 
 const navItems = [
   { id: "Home", icon: LayoutGrid, path: "/dashboard" },
@@ -20,14 +21,9 @@ const navItems = [
   { id: "Settings", icon: Settings, path: "/settings" },
 ];
 
-export function Sidebar({
-  activeTab,
-  setActiveTab,
-}: {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}) {
+export function Sidebar() {
   const { signOut } = useClerk();
+  const pathname = usePathname(); // Get current route
 
   const handleSignOut = async () => {
     await signOut({ redirectUrl: "/" });
@@ -37,7 +33,7 @@ export function Sidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col items-center gap-6 w-auto py-8 clay-card h-[calc(100vh-64px)] fixed left-8 z-50">
+      <aside className="hidden md:flex flex-col items-center gap-6 w-20 py-8 clay-card fixed left-8 top-1/2 -translate-y-1/2 z-50 h-[95vh]">
         <Image
           src="/logo.svg"
           alt="Kognit Logo"
@@ -46,15 +42,14 @@ export function Sidebar({
           className="mb-4"
         />
 
-        <nav className="flex flex-col gap-4 w-full px-4">
+        <nav className="flex flex-col gap-4 w-full items-center">
           {navItems.map((item) => (
             <Link
               href={item.path}
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
               className={cn(
                 "clay-button h-12 w-12 flex items-center justify-center transition-colors",
-                activeTab === item.id
+                pathname === item.path
                   ? "active text-primary"
                   : "text-muted-foreground",
               )}
@@ -64,18 +59,16 @@ export function Sidebar({
           ))}
         </nav>
 
-        <div className="mt-auto flex flex-col gap-4">
+        <div className="mt-auto flex flex-col gap-6 items-center">
           <UserButton
             appearance={{
               elements: {
-                userButtonAvatarBox: "w-10 h-10", // Custom width and height
+                userButtonAvatarBox: "w-10 h-10",
                 userButtonTrigger: "w-10 h-10",
               },
             }}
           />
-        </div>
 
-        <div className="flex flex-col gap-4">
           <button
             onClick={handleSignOut}
             className="clay-button h-10 w-10 flex items-center justify-center text-destructive cursor-pointer"
@@ -88,16 +81,16 @@ export function Sidebar({
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-4 left-4 right-4 h-20 clay-card z-50 flex items-center justify-around px-6">
         {navItems.map((item) => (
-          <button
+          <Link // Changed from button to Link for mobile too
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            href={item.path}
             className={cn(
               "h-12 w-12 flex items-center justify-center",
-              activeTab === item.id ? "text-primary" : "text-muted-foreground",
+              pathname === item.path ? "text-primary" : "text-muted-foreground",
             )}
           >
             <item.icon className="w-6 h-6" />
-          </button>
+          </Link>
         ))}
       </nav>
     </>

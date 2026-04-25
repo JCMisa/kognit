@@ -11,6 +11,7 @@ import {
   X,
   UploadCloud,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -20,11 +21,11 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { ClayButton, ClayCard } from "@/components/ui-lora/Clay";
-import PrioritySelector from "./PrioritySelector";
-import { PriorityType } from "@/config/schema";
+import PrioritySelector from "../create/_components/PrioritySelector";
+import { PriorityType, TaskType } from "@/config/schema";
 import { toast } from "sonner";
 import { cn, showConfetti } from "@/lib/utils";
-import { createTaskAction } from "@/lib/actions/task";
+import { createTaskAction, updateTaskAction } from "@/lib/actions/task";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
@@ -37,7 +38,15 @@ export interface TaskFormValues {
   imageUrl?: string | null;
 }
 
-export default function TaskForm() {
+interface TaskFormProps {
+  initialData?: TaskType;
+  isEditing?: boolean;
+}
+
+export default function TaskForm({
+  initialData,
+  isEditing = false,
+}: TaskFormProps) {
   const router = useRouter();
   const {
     uploadImage,
@@ -46,30 +55,28 @@ export default function TaskForm() {
     reset: resetUpload,
   } = useCloudinaryUpload();
 
-  const [showDescription, setShowDescription] = useState(false);
+  // If editing and description exists, show it by default
+  const [showDescription, setShowDescription] = useState(
+    !!initialData?.description,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialData?.imageUrl || null,
+  );
   const [isDragging, setIsDragging] = useState(false);
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    // formState: { errors },
-  } = useForm<TaskFormValues>({
-    defaultValues: {
-      content: "",
-      description: "",
-      priority: "medium",
-      dueDate: null,
-      imageUrl: null,
-    },
-  });
+  const { register, control, handleSubmit, reset, setValue } =
+    useForm<TaskFormValues>({
+      defaultValues: {
+        content: initialData?.content || "",
+        description: initialData?.description || "",
+        priority: initialData?.priority || "medium",
+        dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : null,
+        imageUrl: initialData?.imageUrl || null,
+      },
+    });
 
   const dueDateValue = useWatch({ control, name: "dueDate" });
-  // const imageUrlValue = useWatch({ control, name: "imageUrl" });
 
   const onFileChange = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -103,19 +110,27 @@ export default function TaskForm() {
   const handleFormSubmit = async (values: TaskFormValues) => {
     setIsSubmitting(true);
     try {
-      const result = await createTaskAction(values);
+      // Determine which server action to call
+      const result =
+        isEditing && initialData
+          ? await updateTaskAction(initialData.id, values)
+          : await createTaskAction(values);
+
       if (result.success) {
-        toast.success("Task created successfully!");
+        toast.success(isEditing ? "Task updated!" : "Task created!");
         showConfetti();
         reset();
         setPreviewUrl(null);
         router.push("/tasks");
+        router.refresh(); // Ensure the task list gets the fresh data
       } else {
         toast.error(result.error);
       }
     } catch (error) {
-      console.log("Error creating task:", error);
-      toast.error("Failed to create task");
+      console.log("Error handling task form:", error);
+      toast.error(
+        isEditing ? "Failed to update task" : "Failed to create task",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -126,14 +141,20 @@ export default function TaskForm() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="clay-pill h-10 w-10 flex items-center justify-center">
-          <Plus className="w-5 h-5 text-primary" />
+          {isEditing ? (
+            <Pencil className="w-5 h-5 text-primary" />
+          ) : (
+            <Plus className="w-5 h-5 text-primary" />
+          )}
         </div>
         <div>
           <h2 className="text-lg font-bold text-foreground tracking-tight">
-            New Task
+            {isEditing ? "Edit Task" : "New Task"}
           </h2>
           <p className="text-xs text-muted-foreground">
-            AI will remember and understand your task
+            {isEditing
+              ? "Update details to refine Kognit's memory"
+              : "Kognit will remember and understand your task"}
           </p>
         </div>
       </div>
@@ -161,7 +182,9 @@ export default function TaskForm() {
             className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground pl-1"
           >
             <AlignLeft className="w-3.5 h-3.5" />
-            <span>Add description</span>
+            <span>
+              {showDescription ? "Hide description" : "Add description"}
+            </span>
             <ChevronDown
               className={cn(
                 "w-3.5 h-3.5 transition-transform",
@@ -230,7 +253,7 @@ export default function TaskForm() {
                   <button
                     type="button"
                     onClick={removeImage}
-                    className="bg-white p-2 rounded-full text-destructive shadow-lg"
+                    className="bg-white p-2 rounded-full text-destructive shadow-lg hover:scale-110 transition-transform"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -336,7 +359,13 @@ export default function TaskForm() {
             className="min-w-[160px]"
             disabled={isSubmitting || isUploading}
           >
-            {isSubmitting ? "Creating..." : "Create Task"}
+            {isSubmitting
+              ? isEditing
+                ? "Updating..."
+                : "Creating..."
+              : isEditing
+                ? "Update Task"
+                : "Create Task"}
           </ClayButton>
         </div>
       </form>

@@ -11,9 +11,12 @@ import {
   MobileNavToggle,
   MobileNavMenu,
 } from "@/components/aceternity/ResizableNavbar";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function HomeNavbar() {
   const { user } = useUser();
@@ -45,17 +48,17 @@ export default function HomeNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           {user ? (
-            <div className="flex items-center gap-2">
-              <UserButton />
-              <div className="flex flex-col items-start">
-                <p className="text-sm line-clamp-1">
-                  {user.fullName || `${user.firstName} ${user.lastName}`}
-                </p>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {user.emailAddresses[0].emailAddress}
-                </p>
-              </div>
-            </div>
+            <Button
+              className="flex items-center gap-2 cursor-pointer p-4 z-[11]"
+              variant={"outline"}
+              size={"lg"}
+              asChild
+            >
+              <Link href={"/dashboard"}>
+                <Image src={"/logo.svg"} alt="logo" width={30} height={30} />
+                <p className="text-sm tracking-wider">Get Started</p>
+              </Link>
+            </Button>
           ) : (
             <div className="flex items-center gap-4">
               <NavbarButton
@@ -99,17 +102,17 @@ export default function HomeNavbar() {
               </a>
             ))}
             {user ? (
-              <div className="flex items-center gap-2">
-                <UserButton />
-                <div className="flex flex-col items-start">
-                  <p className="text-sm line-clamp-1">
-                    {user.fullName || `${user.firstName} ${user.lastName}`}
-                  </p>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {user.emailAddresses[0].emailAddress}
-                  </p>
-                </div>
-              </div>
+              <Button
+                className="flex items-center gap-2 cursor-pointer p-4 z-[11]"
+                variant={"outline"}
+                asChild
+                size={"lg"}
+              >
+                <Link href={"/dashboard"}>
+                  <Image src={"/logo.svg"} alt="logo" width={30} height={30} />
+                  <p className="text-sm tracking-wider">Get Started</p>
+                </Link>
+              </Button>
             ) : (
               <div className="flex w-full flex-col gap-4">
                 <NavbarButton

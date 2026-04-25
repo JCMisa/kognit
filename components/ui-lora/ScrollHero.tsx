@@ -151,7 +151,7 @@ export const ScrollHero = ({
               )}
               asChild
             >
-              <Link href={user ? "/dashboard" : "/sign-in"}>Get Started</Link>
+              <Link href={user ? "/learn-more" : "/sign-in"}>Learn More</Link>
             </Button>
           </motion.div>
         </div>

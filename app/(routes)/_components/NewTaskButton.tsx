@@ -8,7 +8,7 @@ const NewTaskButton = () => {
       <Link href="/tasks/create">
         <ClayButton
           variant="primary"
-          className="flex items-center gap-2 px-8 py-4 shadow-xl shadow-primary/20"
+          className="flex items-center gap-2 px-8 py-4 shadow-xl shadow-primary/20  text-center"
         >
           <PlusIcon className="w-5 h-5 stroke-[3px]" />
           <span className="font-bold">New Task</span>
