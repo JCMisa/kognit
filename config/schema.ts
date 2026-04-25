@@ -37,6 +37,7 @@ export const tasks = pgTable(
     // Core Content
     content: text("content").notNull(),
     description: text("description"), // For the AI to have more context
+    imageUrl: text("image_url"),
 
     // Status & Organization
     isCompleted: boolean("is_completed").default(false).notNull(),

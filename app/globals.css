@@ -199,6 +199,31 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* Adjust this to change the thumb width */
+  }
+
+  /* Removes the up/down arrow buttons */
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  /* Makes the track (container) invisible */
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Styles only the draggable thumb */
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(0.708 0 0 / 0.2); /* Use your muted color or primary */
+    border-radius: 100px;
+    transition: background 0.2s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary); /* Glows primary color on hover */
+  }
 }
 
 .clay-inset {

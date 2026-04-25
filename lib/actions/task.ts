@@ -4,24 +4,24 @@ import { db } from "@/config/db";
 import { getSessionUserIdAction } from "./auth";
 import { taskEmbeddings, tasks } from "@/config/schema";
 import { TaskFormValues } from "@/app/(routes)/tasks/create/_components/TaskForm";
-import { cacheLife, cacheTag, revalidateTag } from "next/cache";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({});
 
 export const getAllUserTasksAction = async (userId: string) => {
-  "use cache";
+  // "use cache";
 
   try {
-    cacheLife("hours");
-    cacheTag("tasks");
+    // cacheLife("hours");
+    // cacheTag("tasks");
 
     const data = await db
       .select()
       .from(tasks)
       .where(eq(tasks.userId, userId))
-      .orderBy(desc(tasks.createdAt));
+      .orderBy(asc(tasks.position));
 
     if (data.length === 0) {
       return { success: false, error: "No tasks found" };
@@ -79,6 +79,7 @@ export const createTaskAction = async (formData: TaskFormValues) => {
         userId: userId,
         content: formData.content,
         description: formData.description,
+        imageUrl: formData.imageUrl,
         priority: formData.priority,
         dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
         position: 0,
@@ -90,6 +91,7 @@ export const createTaskAction = async (formData: TaskFormValues) => {
     // STEP 2: Generate the Vector Embedding
     // We do this AFTER saving the task so we have the real task ID
     try {
+      // const textToEmbed = `Task: ${newTask.content}. Context: ${newTask.description || "None"}. Attached Image: ${!!newTask.imageUrl}`;
       const textToEmbed = `Task: ${newTask.content}. Context: ${newTask.description || "None"}`;
 
       const embeddingsResponse = await ai.models.embedContent({
@@ -121,7 +123,8 @@ export const createTaskAction = async (formData: TaskFormValues) => {
       };
     }
 
-    revalidateTag("tasks", "max");
+    // revalidateTag("tasks", "max");
+    revalidatePath("/tasks");
     return { success: true, data: newTask };
   } catch (error) {
     console.error("Database Error:", error);
@@ -170,5 +173,60 @@ export const getRelevantTasksAction = async (queryText: string) => {
   } catch (error) {
     console.error("Retrieval Error:", error);
     return { success: false, error: "Failed to search tasks" };
+  }
+};
+
+export const reorderTasksAction = async (
+  reorderedTasks: { id: string; position: number }[],
+) => {
+  try {
+    // Fire all updates. If one fails, the whole block throws an error.
+    await Promise.all(
+      reorderedTasks.map((task) =>
+        db
+          .update(tasks)
+          .set({ position: task.position })
+          .where(eq(tasks.id, task.id)),
+      ),
+    );
+
+    // revalidateTag("tasks", "max");
+    revalidatePath("/tasks");
+    return { success: true };
+  } catch (error) {
+    console.error("Manual Batch Reorder failed:", error);
+    return { success: false, error: "Sync failed. Please refresh your list." };
+  }
+};
+
+export const updateTaskStatusAction = async (
+  taskId: string,
+  isCompleted: boolean,
+) => {
+  const userId = await getSessionUserIdAction();
+
+  if (!userId) {
+    return { success: false, error: "Unauthenticated" };
+  }
+
+  try {
+    const data = await db
+      .update(tasks)
+      .set({
+        isCompleted: isCompleted,
+      })
+      .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+      .returning();
+
+    if (!data) {
+      return { success: false, error: "Task not found or update failed" };
+    }
+
+    revalidateTag(`user-task-${taskId}`, "max");
+    revalidatePath("/tasks");
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { success: false, error: "Database connection failed." };
   }
 };

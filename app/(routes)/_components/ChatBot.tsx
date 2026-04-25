@@ -71,7 +71,7 @@ export default function ChatBot() {
               {/* Chat Body */}
               <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 pb-2"
+                className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 pb-2 custom-scrollbar"
               >
                 {messages.map((m) => (
                   <div
@@ -93,6 +93,20 @@ export default function ChatBot() {
                     </div>
                   </div>
                 ))}
+
+                {isLoading && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Input Area */}

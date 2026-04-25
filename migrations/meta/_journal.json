@@ -15,6 +15,13 @@
       "when": 1777013547041,
       "tag": "0001_perpetual_la_nuit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777093921445,
+      "tag": "0002_slippery_newton_destine",
+      "breakpoints": true
     }
   ]
 }
