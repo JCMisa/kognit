@@ -121,8 +121,8 @@ export default function TaskForm({
         showConfetti();
         reset();
         setPreviewUrl(null);
+        router.refresh();
         router.push("/tasks");
-        router.refresh(); // Ensure the task list gets the fresh data
       } else {
         toast.error(result.error);
       }

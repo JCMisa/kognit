@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { TaskType } from "@/config/schema";
 import { ClayCard } from "@/components/ui-lora/Clay";
-import { cn } from "@/lib/utils";
+import { cn, showConfetti } from "@/lib/utils";
 import {
   Calendar,
   Clock,
@@ -14,7 +14,6 @@ import {
   GripVertical,
   EyeIcon,
   PencilIcon,
-  Trash2Icon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -32,8 +31,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import DeleteTaskDialog from "./DeleteTaskDialog";
+import { useRouter } from "next/navigation";
 
 export function TaskCard({ task }: { task: TaskType }) {
+  const router = useRouter();
+
   // dnd-kit logic
   const {
     attributes,
@@ -75,6 +78,8 @@ export function TaskCard({ task }: { task: TaskType }) {
 
     setIsCompleted(!isCompleted);
     toast.success("Task status updated!");
+    showConfetti();
+    router.refresh();
   };
 
   return (
@@ -133,10 +138,7 @@ export function TaskCard({ task }: { task: TaskType }) {
                       Edit
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center gap-2 text-xs tracking-wider">
-                    <Trash2Icon className="w-3 h-3" />
-                    Delete
-                  </DropdownMenuItem>
+                  <DeleteTaskDialog taskId={task.id} />
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

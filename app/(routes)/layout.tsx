@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import ChatBot from "./_components/ChatBot";
-import { Sidebar } from "./dashboard/_components/Sidebar";
+import { Sidebar } from "./_components/Sidebar";
 
 const RoutesLayout = ({ children }: { children: React.ReactNode }) => {
   return (

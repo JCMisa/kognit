@@ -17,7 +17,7 @@ import { usePathname } from "next/navigation"; // Import this
 const navItems = [
   { id: "Home", icon: LayoutGrid, path: "/dashboard" },
   { id: "Tasks", icon: ListTodo, path: "/tasks" },
-  { id: "Chat", icon: MessageCircle, path: "/chat" },
+  { id: "Call", icon: MessageCircle, path: "/call" },
   { id: "Settings", icon: Settings, path: "/settings" },
 ];
 

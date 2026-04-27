@@ -4,7 +4,7 @@ import { db } from "@/config/db";
 import { getSessionUserIdAction } from "./auth";
 import { taskEmbeddings, tasks } from "@/config/schema";
 import { TaskFormValues } from "@/app/(routes)/tasks/_components/TaskForm";
-import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { GoogleGenAI } from "@google/genai";
 
@@ -35,11 +35,11 @@ export const getAllUserTasksAction = async (userId: string) => {
 };
 
 export const getUserTaskByIdAction = async (taskId: string, userId: string) => {
-  "use cache";
+  // "use cache";
 
   try {
-    cacheLife("hours");
-    cacheTag(`user-task-${taskId}`);
+    // cacheLife("hours");
+    // cacheTag(`user-task-${taskId}`);
 
     const [data] = await db
       .select()
@@ -126,8 +126,15 @@ export const createTaskAction = async (formData: TaskFormValues) => {
   }
 };
 
-export const getRelevantTasksAction = async (queryText: string) => {
-  const userId = await getSessionUserIdAction();
+// lib/actions/task.ts
+
+export const getRelevantTasksAction = async (
+  queryText: string,
+  manualUserId?: string,
+) => {
+  // Check manualUserId first (for Vapi), fallback to session (for Chatbot)
+  const userId = manualUserId || (await getSessionUserIdAction());
+
   if (!userId) return { success: false, error: "Unauthenticated" };
 
   try {
@@ -142,7 +149,6 @@ export const getRelevantTasksAction = async (queryText: string) => {
     if (!queryVector) throw new Error("Could not generate query vector");
 
     // 2. Perform Semantic Search using Drizzle Syntax
-    // We calculate similarity as: 1 - (embedding <=> queryVector)
     const similarity = sql<number>`1 - (${taskEmbeddings.embedding} <=> ${JSON.stringify(queryVector)}::vector)`;
 
     const relevantTasks = await db
@@ -154,12 +160,7 @@ export const getRelevantTasksAction = async (queryText: string) => {
       })
       .from(tasks)
       .leftJoin(taskEmbeddings, eq(tasks.id, taskEmbeddings.taskId))
-      .where(
-        and(
-          eq(tasks.userId, userId),
-          gt(similarity, 0.5), // Only return results with > 50% similarity
-        ),
-      )
+      .where(and(eq(tasks.userId, userId), gt(similarity, 0.5)))
       .orderBy(desc(similarity))
       .limit(5);
 
@@ -205,23 +206,31 @@ export const updateTaskStatusAction = async (
   }
 
   try {
+    // 1. Clean the incoming content string to remove existing "(Completed)" tags
+    // This uses a Regex to find "(Completed)" and any surrounding extra spaces
+    const baseContent = taskContent.replace(/\s*\(Completed\)\s*/gi, "").trim();
+
+    // 2. Generate the final content string based on the new status
+    const finalContent = isCompleted
+      ? `${baseContent} (Completed)`
+      : baseContent;
+
     const data = await db
       .update(tasks)
       .set({
-        content: `${`${taskContent} ${isCompleted && "(Completed)"}`}`,
+        content: finalContent,
         isCompleted: isCompleted,
         updatedAt: new Date(),
       })
       .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
       .returning();
 
-    if (!data) {
+    if (!data || data.length === 0) {
       return { success: false, error: "Task not found or update failed" };
     }
 
-    revalidateTag(`user-task-${taskId}`, "max");
     revalidatePath("/tasks");
-    return { success: true, data: data };
+    return { success: true, data: data[0] };
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, error: "Database connection failed." };
@@ -278,10 +287,27 @@ export const updateTaskAction = async (
     }
 
     revalidatePath("/tasks");
-    revalidateTag(`user-task-${taskId}`, "max");
+    // revalidateTag(`user-task-${taskId}`, "max");
     return { success: true, data: updatedTask };
   } catch (error) {
     console.log("Database Error:", error);
     return { success: false, error: "Update failed." };
+  }
+};
+
+export const deleteTaskAction = async (taskId: string) => {
+  const userId = await getSessionUserIdAction();
+  if (!userId) return { success: false, error: "Unauthenticated" };
+
+  try {
+    await db
+      .delete(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)));
+    revalidatePath("/tasks");
+    // revalidateTag(`user-task-${taskId}`, "max");
+    return { success: true };
+  } catch (error) {
+    console.log("Database Error:", error);
+    return { success: false, error: "Delete failed." };
   }
 };
