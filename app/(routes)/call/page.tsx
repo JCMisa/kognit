@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"; // Using your auth action
 import Agent from "./_components/Agent";
 import { getCurrentUserAction } from "@/lib/actions/user";
 import { Suspense } from "react";
+import { getRelevantTasksAction } from "@/lib/actions/task";
+import { PriorityType } from "@/config/schema";
 
 const AgentWrapper = async () => {
   const user = await getCurrentUserAction();
@@ -10,7 +12,26 @@ const AgentWrapper = async () => {
     redirect("/sign-in");
   }
 
-  return <Agent userId={user.id} userName={user.firstName} />;
+  const tasksResult = await getRelevantTasksAction(
+    "all tasks todo priority due date pending",
+    user.id,
+  );
+  const tasks = tasksResult.success && tasksResult.data ? tasksResult.data : [];
+
+  return (
+    <Agent
+      userId={user.id}
+      userName={user.firstName}
+      tasks={
+        tasks as {
+          content: string;
+          description: string;
+          priority: PriorityType;
+          similarity: number;
+        }[]
+      }
+    />
+  );
 };
 
 const CallAssistant = () => {

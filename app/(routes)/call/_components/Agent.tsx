@@ -10,15 +10,24 @@ import { configureAssistant } from "@/lib/vapi.config";
 import { ClayCard, ClayButton } from "@/components/ui-lora/Clay";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { PriorityType } from "@/config/schema";
 
 interface AgentProps {
   userId: string;
   userName: string | null;
+  tasks:
+    | {
+        content: string;
+        description: string;
+        priority: PriorityType;
+        similarity: number;
+      }[]
+    | [];
 }
 
 type AgentStatus = "idle" | "connecting" | "active" | "speaking" | "listening";
 
-const Agent = ({ userId, userName }: AgentProps) => {
+const Agent = ({ userId, userName, tasks }: AgentProps) => {
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [isMicOn, setIsMicOn] = useState(true);
   const [transcript, setTranscript] = useState("Ready to sync...");
@@ -78,7 +87,7 @@ const Agent = ({ userId, userName }: AgentProps) => {
     setStatus("connecting");
     try {
       // Pass Buddy or User name to assistant config
-      const config = configureAssistant(userId, userName || "Buddy");
+      const config = configureAssistant(userName || "Buddy", tasks);
       await vapi.start(config);
     } catch (e) {
       console.log("Vapi Connection Error:", e);
