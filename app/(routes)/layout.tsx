@@ -9,12 +9,12 @@ const RoutesLayout = ({ children }: { children: React.ReactNode }) => {
         <Sidebar />
       </Suspense>
 
-      <section className="ml-0 md:ml-24 lg:ml-28 xl:ml-32 2xl:ml-36 mb-24 md:mb-0">
+      <section className="ml-0 md:ml-26 lg:ml-28 xl:ml-32 2xl:ml-36 mb-24 md:mb-0">
         {children}
       </section>
 
       <Suspense fallback={null}>
-        <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[100]">
+        <div className="fixed bottom-20 right-8 md:bottom-4 md:right-4 z-[100]">
           <ChatBot />
         </div>
       </Suspense>

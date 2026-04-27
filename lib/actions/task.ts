@@ -7,6 +7,7 @@ import { TaskFormValues } from "@/app/(routes)/tasks/_components/TaskForm";
 import { revalidatePath } from "next/cache";
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { GoogleGenAI } from "@google/genai";
+import { format } from "date-fns";
 
 const ai = new GoogleGenAI({});
 
@@ -307,5 +308,30 @@ export const deleteTaskAction = async (taskId: string) => {
   } catch (error) {
     console.log("Database Error:", error);
     return { success: false, error: "Delete failed." };
+  }
+};
+
+export const getTaskActivityStatsAction = async (userId: string) => {
+  try {
+    const data = await db
+      .select({
+        createdAt: tasks.createdAt,
+        priority: tasks.priority,
+      })
+      .from(tasks)
+      .where(eq(tasks.userId, userId))
+      .orderBy(asc(tasks.createdAt));
+
+    const stats = data.map((task) => ({
+      day: format(task.createdAt, "EEE"), // Mon, Tue, etc.
+      count: 1,
+      priority: task.priority,
+      date: task.createdAt, // Passing raw date for filtering
+    }));
+
+    return { success: true, data: stats };
+  } catch (error) {
+    console.log("Error fetching stats:", error);
+    return { success: false, error: "Failed to fetch stats" };
   }
 };

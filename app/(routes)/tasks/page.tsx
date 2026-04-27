@@ -45,13 +45,13 @@ const TasksPage = async () => {
         </nav>
 
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="clay-pill p-2 bg-primary/10">
                 <LayoutGrid className="w-5 h-5 text-primary" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-foreground">
                 Your <span className="text-primary">Tasks</span>
               </h1>
             </div>

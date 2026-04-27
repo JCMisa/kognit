@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/custom/ThemeProvider";
 import { UserStoreWatcher } from "@/providers/UserStoreWatcher";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
+import { DynamicThemeProvider } from "@/components/custom/DynamicThemeProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -66,11 +67,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <TooltipProvider>
-              <UserStoreWatcher />
-              {children}
-            </TooltipProvider>
-            <Toaster />
+            <DynamicThemeProvider>
+              <TooltipProvider>
+                <UserStoreWatcher />
+                {children}
+              </TooltipProvider>
+              <Toaster />
+            </DynamicThemeProvider>
           </ThemeProvider>
         </body>
       </html>

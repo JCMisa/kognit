@@ -15,7 +15,10 @@ export async function POST(req: Request) {
   const contextString =
     contextResult.success && contextResult.data
       ? contextResult.data
-          .map((t) => `- ${t.content}: ${t.description ?? "No description"}`)
+          .map(
+            (t) =>
+              `- Task: ${t.content}. Priority: ${t.priority}. Details: ${t.description || "None"}.`,
+          )
           .join("\n")
       : "No relevant tasks found.";
 
